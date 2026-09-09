@@ -259,13 +259,11 @@
                   label="Tipo de reparación *"
                   emit-value
                   map-options
-
-                  multiple
+                   multiple
                   use-chips
                   clearable
                   :rules="[val => Array.isArray(val) && val.length > 0 || 'Selecciona al menos un tipo']"
-
-                  :rules="[val => !!val || 'Selecciona un tipo']"
+                 
 
                 />
               </div>
