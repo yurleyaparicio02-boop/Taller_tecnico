@@ -45,7 +45,7 @@
             <div class="stat-label">Con pago pendiente</div>
           </div>
           <div class="stat-cell">
-            <div class="stat-value stat-accent">${{ totalPorCobrar().toFixed(2) }}</div>
+            <div class="stat-value stat-accent">{{ formatearPrecio(totalPorCobrar()) }}</div>
             <div class="stat-label">Total por cobrar</div>
           </div>
         </div>
@@ -120,11 +120,17 @@
                 </div>
 
                 <div class="meta-line">
-                  <q-icon name="event" size="14px" /> {{ s.fecha }} · {{ s.hora }}
+                  <q-icon name="event" size="14px" /> Llegada: {{ s.fechaLlegada || s.fecha }} · {{ s.hora }}
+                </div>
+                <div class="meta-line q-mt-xs" v-if="s.fechaEntrega">
+                  <q-icon name="local_shipping" size="14px" /> Entrega: {{ s.fechaEntrega }}
                 </div>
 
                 <div class="row items-center justify-between q-mt-md">
-                  <div class="price-value">${{ Number(s.precio).toFixed(2) }}</div>
+                  <div class="price-block">
+                    <div class="price-label">Precio</div>
+                    <div class="price-value">{{ formatearPrecio(s.precio) }}</div>
+                  </div>
                   <span class="pago-pill" :class="'pago-' + s.estadoPago">
                     <q-icon :name="iconoEstadoPago(s.estadoPago)" size="13px" />
                     {{ etiquetaEstadoPago(s.estadoPago) }}
@@ -132,8 +138,8 @@
                 </div>
 
                 <div v-if="s.estadoPago === 'abono'" class="meta-line q-mt-xs">
-                  Abonado ${{ Number(s.montoAbonado || 0).toFixed(2) }} · Saldo
-                  <span class="saldo-value">${{ calcularSaldo(s).toFixed(2) }}</span>
+                  Abonado {{ formatearPrecio(s.montoAbonado || 0) }} · Saldo
+                  <span class="saldo-value">{{ formatearPrecio(calcularSaldo(s)) }}</span>
                 </div>
 
                 <div class="meta-line q-mt-xs">
@@ -286,6 +292,26 @@
                   v-model="form.fecha"
                   label="Fecha de recepción (automática)"
                   hint="Se asigna sola, no se puede editar"
+                />
+              </div>
+              <div class="col-xs-12 col-sm-6">
+                <q-input
+                  outlined dense
+                  class="field-clean"
+                  type="date"
+                  v-model="form.fechaLlegada"
+                  label="Fecha de llegada *"
+                  :rules="[val => !!val || 'La fecha de llegada es requerida']"
+                />
+              </div>
+              <div class="col-xs-12 col-sm-6">
+                <q-input
+                  outlined dense
+                  class="field-clean"
+                  type="date"
+                  v-model="form.fechaEntrega"
+                  label="Fecha de entrega"
+                  hint="Opcional"
                 />
               </div>
               <div class="col-xs-12 col-sm-6">
@@ -466,6 +492,13 @@ const opcionesEstadoEquipo = [
 const opcionesEstadoEquipoFiltro = opcionesEstadoEquipo
 const opcionesEstadoPagoFiltro = opcionesEstadoPago
 
+const precioFormatter = new Intl.NumberFormat('es-CO', {
+  style: 'currency',
+  currency: 'COP',
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+})
+
 const busqueda = ref('')
 const filtroEstadoEquipo = ref(null)
 const filtroEstadoPago = ref(null)
@@ -499,12 +532,11 @@ function formularioVacio() {
     marca: null,
     marcaOtra: '',
     modelo: '',
-
     tipoReparacion: [],
-
-    tipoReparacion: null,
     tecnico: null,
     fecha: ahora.toISOString().slice(0, 10),
+    fechaLlegada: ahora.toISOString().slice(0, 10),
+    fechaEntrega: '',
     hora: ahora.toTimeString().slice(0, 5),
     precio: null,
     metodoPago: null,
@@ -605,6 +637,11 @@ function etiquetaSiguienteEstado(estadoActual) {
     listo: 'Marcar como entregado'
   }
   return mapa[estadoActual] || ''
+}
+
+function formatearPrecio(valor) {
+  const cantidad = Number(valor || 0)
+  return precioFormatter.format(cantidad)
 }
 
 function etiquetaMarca(valor) {
@@ -951,11 +988,27 @@ function totalPorCobrar() {
   align-items: flex-start;
 }
 
+.price-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+}
+
+.price-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--ink-faint);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .price-value {
   font-family: 'Space Grotesk', sans-serif;
-  font-weight: 600;
-  font-size: 1.3rem;
-  color: var(--ink);
+  font-weight: 700;
+  font-size: 1.36rem;
+  color: var(--accent);
+  line-height: 1.2;
 }
 
 .saldo-value {
