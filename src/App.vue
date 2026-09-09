@@ -8,7 +8,7 @@
         </div>
         <q-space />
         <q-btn
-<<<<<<< HEAD
+
           flat
           no-caps
           class="btn-ghost btn-header-clean"
@@ -17,8 +17,7 @@
           @click="mostrarConfirmBorrarTodos = true"
         />
         <q-btn
-=======
->>>>>>> 8b98661d6935b61c2ecbbfea855b31d353543ea4
+
           unelevated
           no-caps
           class="btn-primary"
@@ -260,14 +259,14 @@
                   label="Tipo de reparación *"
                   emit-value
                   map-options
-<<<<<<< HEAD
+
                   multiple
                   use-chips
                   clearable
                   :rules="[val => Array.isArray(val) && val.length > 0 || 'Selecciona al menos un tipo']"
-=======
+
                   :rules="[val => !!val || 'Selecciona un tipo']"
->>>>>>> 8b98661d6935b61c2ecbbfea855b31d353543ea4
+
                 />
               </div>
               <div class="col-12 col-sm-6">
@@ -397,7 +396,7 @@
       </q-card>
     </q-dialog>
 
-<<<<<<< HEAD
+
     <q-dialog v-model="mostrarConfirmBorrarTodos">
       <q-card class="modal-card" style="width: 380px; max-width: 90vw;">
         <q-card-section class="row items-center">
@@ -414,8 +413,6 @@
       </q-card>
     </q-dialog>
 
-=======
->>>>>>> 8b98661d6935b61c2ecbbfea855b31d353543ea4
   </q-layout>
 </template>
 
@@ -480,11 +477,11 @@ function serviciosFiltrados() {
     .filter(s => {
       const texto = (busqueda.value || '').toLowerCase().trim()
       const coincideTexto = !texto ||
-<<<<<<< HEAD
+
         s.cliente.toLowerCase().includes(texto) || nombreEquipo(s).toLowerCase().includes(texto)  
-=======
+
         s.cliente.toLowerCase().includes(texto) || nombreEquipo(s).toLowerCase().includes(texto)  //¿No hay un filtro de pago O el estado del pago es igual al filtro?
->>>>>>> 8b98661d6935b61c2ecbbfea855b31d353543ea4
+
       const coincideEquipo = !filtroEstadoEquipo.value || s.estadoEquipo === filtroEstadoEquipo.value
       const coincidePago = !filtroEstadoPago.value || s.estadoPago === filtroEstadoPago.value
       return coincideTexto && coincideEquipo && coincidePago  //El servicio debe cumplir el filtro de texto Y el filtro del equipo Y el filtro del pago.
@@ -504,11 +501,10 @@ function formularioVacio() {
     marca: null,
     marcaOtra: '',
     modelo: '',
-<<<<<<< HEAD
+
     tipoReparacion: [],
-=======
+
     tipoReparacion: null,
->>>>>>> 8b98661d6935b61c2ecbbfea855b31d353543ea4
     tecnico: null,
     fecha: ahora.toISOString().slice(0, 10),
     hora: ahora.toTimeString().slice(0, 5),
@@ -573,10 +569,10 @@ async function guardarServicio() {
 
 const mostrarConfirmEliminar = ref(false)
 const servicioAEliminar = ref(null)
-<<<<<<< HEAD
+
 const mostrarConfirmBorrarTodos = ref(false)
-=======
->>>>>>> 8b98661d6935b61c2ecbbfea855b31d353543ea4
+
+
 
 function pedirConfirmacionEliminar(servicio) {
   if (servicio.estadoEquipo === 'entregado') return // los entregados no se pueden eliminar
@@ -589,14 +585,13 @@ function confirmarEliminar() {
   mostrarConfirmEliminar.value = false
 }
 
-<<<<<<< HEAD
+
 function confirmarBorrarTodos() {
   servicios.value = []
   mostrarConfirmBorrarTodos.value = false
 }
 
-=======
->>>>>>> 8b98661d6935b61c2ecbbfea855b31d353543ea4
+
 function avanzarEstado(servicio) {
   const orden = ['recibido', 'en_reparacion', 'listo', 'entregado']
   const idx = orden.indexOf(servicio.estadoEquipo)
@@ -627,7 +622,7 @@ function nombreEquipo(servicio) {
 }
 
 function etiquetaReparacion(valor) {
-<<<<<<< HEAD
+
   if (Array.isArray(valor)) {
     return valor.map(item => {
       const encontrado = opcionesTipoReparacion.find(o => o.value === item)
@@ -635,8 +630,8 @@ function etiquetaReparacion(valor) {
     }).join(', ')
   }
 
-=======
->>>>>>> 8b98661d6935b61c2ecbbfea855b31d353543ea4
+
+
   const encontrado = opcionesTipoReparacion.find(o => o.value === valor)
   return encontrado ? encontrado.label : valor
 }
