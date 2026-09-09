@@ -92,11 +92,11 @@
 
         <div class="row q-col-gutter-md">
           <div
-            class="col-12 col-sm-6 col-md-4"
+            class="col-12 col-sm-6 col-md-4 card-col-large"
             v-for="s in serviciosFiltrados()"
             :key="s.id"
           >
-            <q-card flat class="servicio-card">
+            <q-card flat class="servicio-card card-large">
               <q-card-section class="q-pb-none">
                 <div class="row items-center no-wrap">
                   <div class="col">
@@ -120,10 +120,7 @@
                 </div>
 
                 <div class="meta-line">
-                  <q-icon name="event" size="14px" /> Llegada: {{ s.fechaLlegada || s.fecha }} · {{ s.hora }}
-                </div>
-                <div class="meta-line q-mt-xs" v-if="s.fechaEntrega">
-                  <q-icon name="local_shipping" size="14px" /> Entrega: {{ s.fechaEntrega }}
+                  <q-icon name="event" size="14px" /> {{ s.fecha }} · {{ s.hora }}
                 </div>
 
                 <div class="row items-center justify-between q-mt-md">
@@ -151,17 +148,18 @@
                 </div>
 
                 <div class="row items-center q-mt-sm q-gutter-sm" v-if="s.estadoEquipo === 'entregado'">
-                  <q-icon name="star_rate" size="16px" class="text-amber-8" />
+                  <q-icon name="star_rate" size="18px" class="text-amber-8" />
                   <q-rating
                     v-model="s.calificacion"
                     max="5"
-                    size="20px"
+                    size="24px"
                     color="amber-8"
                     icon="star_border"
                     icon-selected="star"
+                    :disable="s.calificacion > 0"
                     @update:model-value="guardarAutomatico(s)"
                   />
-                  <span class="text-caption text-grey-7">{{ s.calificacion > 0 ? s.calificacion + '/5' : 'Calificar' }}</span>
+                  <span class="text-caption text-grey-7 rating-text">{{ s.calificacion > 0 ? s.calificacion + '/5' : 'Calificar' }}</span>
                 </div>
                 <div class="pending-flag q-mt-sm" v-else>
                   <q-icon name="pending_actions" size="15px" /> Aún sin entregar
@@ -265,12 +263,21 @@
                   label="Tipo de reparación *"
                   emit-value
                   map-options
-                   multiple
+                  multiple
                   use-chips
                   clearable
                   :rules="[val => Array.isArray(val) && val.length > 0 || 'Selecciona al menos un tipo']"
-                 
-
+                />
+              </div>
+              <div class="col-12 col-sm-6" v-if="Array.isArray(form.tipoReparacion) && form.tipoReparacion.includes('otros')">
+                <q-input
+                  outlined dense
+                  class="field-clean manual-otro-input"
+                  v-model="form.tipoReparacionOtra"
+                  label="Qué otro tipo de reparación requiere? *"
+                  type="text"
+                  :rules="[val => !!val && val.trim().length > 0 || 'Escribe el servicio requerido']"
+                  placeholder="Escribe aquí la reparación"
                 />
               </div>
               <div class="col-12 col-sm-6">
@@ -298,32 +305,13 @@
                 <q-input
                   outlined dense
                   class="field-clean"
-                  type="date"
-                  v-model="form.fechaLlegada"
-                  label="Fecha de llegada *"
-                  :rules="[val => !!val || 'La fecha de llegada es requerida']"
-                />
-              </div>
-              <div class="col-xs-12 col-sm-6">
-                <q-input
-                  outlined dense
-                  class="field-clean"
-                  type="date"
-                  v-model="form.fechaEntrega"
-                  label="Fecha de entrega"
-                  hint="Opcional"
-                />
-              </div>
-              <div class="col-xs-12 col-sm-6">
-                <q-input
-                  outlined dense
-                  class="field-clean"
                   type="time"
                   v-model="form.hora"
                   label="Hora *"
                   :rules="[val => !!val || 'Requerida']"
                 />
               </div>
+
               <div class="col-xs-12 col-sm-6">
                 <q-input
                   outlined dense
@@ -443,7 +431,9 @@
 <script setup>
 import { ref } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
+import { useQuasar } from 'quasar'
 
+const $q = useQuasar()
 const servicios = useLocalStorage('taller_E', [])
 const tecnicos = ['Don Efraín', 'Técnico Carlos', 'Técnico María']
 
@@ -493,10 +483,8 @@ const opcionesEstadoEquipoFiltro = opcionesEstadoEquipo
 const opcionesEstadoPagoFiltro = opcionesEstadoPago
 
 const precioFormatter = new Intl.NumberFormat('es-CO', {
-  style: 'currency',
-  currency: 'COP',
-  minimumFractionDigits: 2,
-  maximumFractionDigits: 2
+  minimumFractionDigits: 3,
+  maximumFractionDigits: 5
 })
 
 const busqueda = ref('')
@@ -533,10 +521,9 @@ function formularioVacio() {
     marcaOtra: '',
     modelo: '',
     tipoReparacion: [],
+    tipoReparacionOtra: '',
     tecnico: null,
     fecha: ahora.toISOString().slice(0, 10),
-    fechaLlegada: ahora.toISOString().slice(0, 10),
-    fechaEntrega: '',
     hora: ahora.toTimeString().slice(0, 5),
     precio: null,
     metodoPago: null,
@@ -626,7 +613,19 @@ function avanzarEstado(servicio) {
   const orden = ['recibido', 'en_reparacion', 'listo', 'entregado']
   const idx = orden.indexOf(servicio.estadoEquipo)
   if (idx !== -1 && idx < orden.length - 1) {
-    servicio.estadoEquipo = orden[idx + 1]
+    const siguiente = orden[idx + 1]
+
+    if (siguiente === 'entregado' && servicio.estadoPago !== 'pagado') {
+      $q.notify({
+        type: 'negative',
+        message: 'Primero registra o confirma el pago como Pagado para entregar el equipo.',
+        position: 'top-right',
+        timeout: 2600
+      })
+      return
+    }
+
+    servicio.estadoEquipo = siguiente
   }
 }
 
@@ -641,7 +640,8 @@ function etiquetaSiguienteEstado(estadoActual) {
 
 function formatearPrecio(valor) {
   const cantidad = Number(valor || 0)
-  return precioFormatter.format(cantidad)
+  const precio = precioFormatter.format(cantidad)
+  return '$ ' + precio.replace(/\,/g, '.')
 }
 
 function etiquetaMarca(valor) {
@@ -715,40 +715,49 @@ function totalPorCobrar() {
 <style>
 :root {
   --bg: #f7f8f7;
+  --bg-soft: #f7f8f7;
   --surface: #ffffff;
+  --surface-soft: #ffffff;
   --ink: #1c2321;
-  --ink-soft: #5b6461;
+  --ink-soft: #65766c;
   --ink-faint: #8a918e;
   --border: #e2e5e3;
   --accent: #2b6e63;
   --accent-soft: #e4eeec;
+  --accent-deep: #2b6e63;
   --danger: #b3261e;
   --danger-soft: #fbeae9;
   --warn: #b4690e;
   --warn-soft: #fdf1e4;
+  --lavender: #e2e5e3;
+  --lavender-soft: #f7f8f7;
 }
 
 .app-shell,
 .app-shell .q-field,
 .app-shell .q-btn {
   font-family: 'Inter', -apple-system, sans-serif;
-  font-size: 16px;
+  font-size: 22px;
+}
+
+.app-shell * {
+  font-size: 22px !important;
 }
 
 .app-shell .q-field__label {
-  font-size: 0.95rem;
+  font-size: 22px;
 }
 
 .app-shell .q-field__native,
 .app-shell .q-field__input {
-  font-size: 0.98rem;
+  font-size: 22px;
 }
 </style>
 
 <style scoped>
 
 .app-page {
-  background: var(--bg);
+  background: linear-gradient(135deg, var(--bg) 0%, var(--bg-soft) 100%);
   min-height: 100vh;
   color: var(--ink);
   padding: 24px 32px 48px;
@@ -763,7 +772,7 @@ function totalPorCobrar() {
 }
 
 .app-header {
-  background: var(--surface);
+  background: #dceadf;
   color: var(--ink);
   border-bottom: 1px solid var(--border);
   box-shadow: none;
@@ -924,27 +933,39 @@ function totalPorCobrar() {
   border-color: var(--border);
 }
 
+.card-col-large {
+  min-width: 0;
+}
+
 .servicio-card {
-  background: var(--surface);
+  background: linear-gradient(160deg, var(--surface) 0%, var(--surface-soft) 100%);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  transition: border-color 0.15s ease;
+  border-radius: 14px;
+  min-height: 330px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+  box-shadow: 0 8px 18px rgba(129, 139, 127, 0.08);
 }
 .servicio-card:hover {
-  border-color: var(--ink-faint);
+  border-color: var(--accent);
+  box-shadow: 0 14px 30px rgba(129, 139, 127, 0.16);
+}
+
+.card-large {
+  min-height: 360px;
 }
 
 .card-title {
   font-family: 'Space Grotesk', sans-serif;
-  font-weight: 600;
-  font-size: 1.12rem;
+  font-weight: 700;
+  font-size: 1.30rem;
   color: var(--ink);
+  line-height: 1.22;
 }
 
 .card-subtitle {
-  font-size: 0.9rem;
+  font-size: 1rem;
   color: var(--ink-soft);
-  margin-top: 1px;
+  margin-top: 4px;
 }
 
 .status-dot-wrap {
@@ -975,7 +996,7 @@ function totalPorCobrar() {
 }
 
 .meta-line {
-  font-size: 0.88rem;
+  font-size: 0.99rem;
   color: var(--ink-soft);
   display: flex;
   align-items: center;
@@ -996,7 +1017,7 @@ function totalPorCobrar() {
 }
 
 .price-label {
-  font-size: 0.76rem;
+  font-size: 0.90rem;
   font-weight: 700;
   color: var(--ink-faint);
   letter-spacing: 0.04em;
@@ -1005,10 +1026,16 @@ function totalPorCobrar() {
 
 .price-value {
   font-family: 'Space Grotesk', sans-serif;
-  font-weight: 700;
-  font-size: 1.36rem;
+  font-weight: 800;
+  font-size: 1.90rem;
   color: var(--accent);
   line-height: 1.2;
+}
+
+.rating-text {
+  font-size: 0.99rem;
+  color: var(--ink-soft);
+  font-weight: 700;
 }
 
 .saldo-value {
@@ -1020,7 +1047,7 @@ function totalPorCobrar() {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  font-size: 0.82rem;
+  font-size: 0.90rem;
   font-weight: 500;
   padding: 4px 9px;
   border-radius: 999px;
