@@ -318,9 +318,10 @@
                 <q-input
                   outlined dense
                   class="field-clean"
-                  type="number"
-                  step="0.01"
-                  v-model.number="form.precio"
+                  type="text"
+                  inputmode="numeric"
+                  :model-value="formatearPrecioCampo(form.precio)"
+                  @update:model-value="actualizarPrecio"
                   label="Precio cobrado *"
                   prefix="$"
                   :rules="[val => val !== null && val > 0 || 'Debe ser mayor a 0']"
@@ -485,8 +486,7 @@ const opcionesEstadoEquipoFiltro = opcionesEstadoEquipo
 const opcionesEstadoPagoFiltro = opcionesEstadoPago
 
 const precioFormatter = new Intl.NumberFormat('es-CO', {
-  minimumFractionDigits: 3,
-  maximumFractionDigits: 5
+  maximumFractionDigits: 0
 })
 
 const busqueda = ref('')
@@ -643,7 +643,17 @@ function etiquetaSiguienteEstado(estadoActual) {
 function formatearPrecio(valor) {
   const cantidad = Number(valor || 0)
   const precio = precioFormatter.format(cantidad)
-  return '$ ' + precio.replace(/\,/g, '.')
+  return '$ ' + precio
+}
+
+function formatearPrecioCampo(valor) {
+  if (valor === null || valor === undefined || valor === '') return ''
+  return Number(valor).toLocaleString('es-CO', { maximumFractionDigits: 0 })
+}
+
+function actualizarPrecio(valor) {
+  const soloDigitos = String(valor).replace(/\D/g, '')
+  form.value.precio = soloDigitos ? Number(soloDigitos) : null
 }
 
 function etiquetaMarca(valor) {
@@ -954,24 +964,24 @@ function totalPorCobrar() {
 }
 
 .card-pago-pagado {
-  border-left: 5px solid var(--accent);
+  border-left: 9px solid var(--accent);
   background: linear-gradient(135deg, #ffffff 0%, #f1fbf7 100%);
 }
 
 .card-pago-pendiente {
-  border-left: 5px solid var(--danger);
+  border-left: 9px solid var(--danger);
   background: linear-gradient(135deg, #ffffff 0%, #fff6f4 100%);
 }
 
 .card-pago-abono {
-  border-left: 5px solid var(--warn);
+  border-left: 9px solid var(--warn);
   background: linear-gradient(135deg, #ffffff 0%, #fff9ef 100%);
 }
 
-.card-estado-recibido { border-top: 4px solid var(--ink-faint); }
-.card-estado-en_reparacion { border-top: 4px solid var(--warn); }
-.card-estado-listo { border-top: 4px solid #2f7fb0; }
-.card-estado-entregado { border-top: 4px solid var(--accent); }
+.card-estado-recibido { border-top: 7px solid var(--ink-faint); }
+.card-estado-en_reparacion { border-top: 7px solid var(--warn); }
+.card-estado-listo { border-top: 7px solid #2f7fb0; }
+.card-estado-entregado { border-top: 7px solid var(--accent); }
 
 .card-large {
   min-height: 360px;
