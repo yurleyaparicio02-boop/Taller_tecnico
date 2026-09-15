@@ -576,7 +576,7 @@ async function guardarServicio() {
   } else {
     servicios.value.push({
       ...form.value,
-      estadoEquipo: 'recibido', // todo registro nuevo siempre entra como "recibido"
+      estadoEquipo: 'recibido',
       id: Date.now().toString(36) + Math.random().toString(36).slice(2)
     })
   }
@@ -592,7 +592,7 @@ const mostrarConfirmBorrarTodos = ref(false)
 
 
 function pedirConfirmacionEliminar(servicio) {
-  if (servicio.estadoEquipo === 'entregado') return // los entregados no se pueden eliminar
+  if (servicio.estadoEquipo === 'entregado') return 
   servicioAEliminar.value = servicio
   mostrarConfirmEliminar.value = true
 }
@@ -714,50 +714,38 @@ function totalPorCobrar() {
 
 <style>
 :root {
-  --bg: #f7f8f7;
-  --bg-soft: #f7f8f7;
+  --bg: #f4f7f6;
+  --bg-soft: #e8f0ed;
   --surface: #ffffff;
-  --surface-soft: #ffffff;
-  --ink: #1c2321;
-  --ink-soft: #65766c;
-  --ink-faint: #8a918e;
-  --border: #e2e5e3;
-  --accent: #2b6e63;
-  --accent-soft: #e4eeec;
-  --accent-deep: #2b6e63;
-  --danger: #b3261e;
-  --danger-soft: #fbeae9;
-  --warn: #b4690e;
-  --warn-soft: #fdf1e4;
-  --lavender: #e2e5e3;
-  --lavender-soft: #f7f8f7;
+  --surface-soft: #f9fcfb;
+  --ink: #17352f;
+  --ink-soft: #60756e;
+  --ink-faint: #8b9b96;
+  --border: #dce7e2;
+  --accent: #177c69;
+  --accent-soft: #dff4ed;
+  --accent-deep: #0f5d50;
+  --danger: #c1443c;
+  --danger-soft: #fff0ee;
+  --warn: #b66a12;
+  --warn-soft: #fff4e5;
+  --lavender: #dce7e2;
+  --lavender-soft: #f4f7f6;
 }
 
 .app-shell,
 .app-shell .q-field,
 .app-shell .q-btn {
   font-family: 'Inter', -apple-system, sans-serif;
-  font-size: 22px;
-}
-
-.app-shell * {
-  font-size: 22px !important;
-}
-
-.app-shell .q-field__label {
-  font-size: 22px;
-}
-
-.app-shell .q-field__native,
-.app-shell .q-field__input {
-  font-size: 22px;
 }
 </style>
 
 <style scoped>
 
 .app-page {
-  background: linear-gradient(135deg, var(--bg) 0%, var(--bg-soft) 100%);
+  background:
+    radial-gradient(circle at 92% 4%, rgba(109, 202, 169, 0.16), transparent 26rem),
+    linear-gradient(135deg, var(--bg) 0%, var(--bg-soft) 100%);
   min-height: 100vh;
   color: var(--ink);
   padding: 24px 32px 48px;
@@ -772,10 +760,11 @@ function totalPorCobrar() {
 }
 
 .app-header {
-  background: #dceadf;
+  background: rgba(255, 255, 255, 0.92);
   color: var(--ink);
-  border-bottom: 1px solid var(--border);
-  box-shadow: none;
+  border-bottom: 1px solid rgba(220, 231, 226, 0.9);
+  box-shadow: 0 4px 20px rgba(23, 53, 47, 0.06);
+  backdrop-filter: blur(12px);
 }
 
 .app-toolbar {
@@ -800,7 +789,7 @@ function totalPorCobrar() {
 .brand-name {
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 600;
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   letter-spacing: -0.01em;
   line-height: 1.2;
 }
@@ -833,12 +822,13 @@ function totalPorCobrar() {
 }
 
 .btn-primary {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), var(--accent-deep));
   color: #fff;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.85rem;
   padding: 0 16px;
-  border-radius: 6px;
+  border-radius: 9px;
+  box-shadow: 0 5px 12px rgba(23, 124, 105, 0.22);
 }
 
 .btn-ghost {
@@ -852,7 +842,7 @@ function totalPorCobrar() {
   color: #fff;
   font-weight: 500;
   font-size: 0.85rem;
-  border-radius: 6px;
+  border-radius: 9px;
 }
 
 .btn-advance {
@@ -876,13 +866,14 @@ function totalPorCobrar() {
   grid-template-columns: repeat(4, 1fr);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 16px;
   margin-bottom: 24px;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(23, 53, 47, 0.07);
 }
 
 .stat-cell {
-  padding: 16px 18px;
+  padding: 18px 20px;
   border-right: 1px solid var(--border);
 }
 .stat-cell:last-child {
@@ -927,7 +918,8 @@ function totalPorCobrar() {
 
 .field-clean :deep(.q-field__control) {
   background: var(--surface);
-  border-radius: 6px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(23, 53, 47, 0.03);
 }
 .field-clean :deep(.q-field__control):before {
   border-color: var(--border);
@@ -940,14 +932,15 @@ function totalPorCobrar() {
 .servicio-card {
   background: linear-gradient(160deg, var(--surface) 0%, var(--surface-soft) 100%);
   border: 1px solid var(--border);
-  border-radius: 14px;
+  border-radius: 18px;
   min-height: 330px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
-  box-shadow: 0 8px 18px rgba(129, 139, 127, 0.08);
+  box-shadow: 0 10px 24px rgba(23, 53, 47, 0.08);
 }
 .servicio-card:hover {
   border-color: var(--accent);
-  box-shadow: 0 14px 30px rgba(129, 139, 127, 0.16);
+  box-shadow: 0 18px 36px rgba(23, 53, 47, 0.14);
+  transform: translateY(-3px);
 }
 
 .card-large {
@@ -977,6 +970,7 @@ function totalPorCobrar() {
   height: 10px;
   border-radius: 50%;
   background: var(--ink-faint);
+  box-shadow: 0 0 0 4px rgba(139, 155, 150, 0.14);
 }
 .dot-recibido { background: var(--ink-faint); }
 .dot-en_reparacion { background: var(--warn); }
@@ -992,7 +986,7 @@ function totalPorCobrar() {
   color: var(--ink-soft);
   font-size: 0.82rem;
   padding: 3px 8px;
-  border-radius: 5px;
+  border-radius: 999px;
 }
 
 .meta-line {
@@ -1048,7 +1042,7 @@ function totalPorCobrar() {
   align-items: center;
   gap: 4px;
   font-size: 0.90rem;
-  font-weight: 500;
+  font-weight: 600;
   padding: 4px 9px;
   border-radius: 999px;
 }
@@ -1076,17 +1070,19 @@ function totalPorCobrar() {
 .empty-state {
   background: var(--surface);
   border: 1px dashed var(--border);
-  border-radius: 10px;
+  border-radius: 16px;
   padding: 48px 24px;
   text-align: center;
   color: var(--ink-faint);
 }
 
 .modal-card {
-  border-radius: 10px;
+  border-radius: 18px;
+  box-shadow: 0 24px 60px rgba(23, 53, 47, 0.2);
 }
 .modal-header {
   border-bottom: 1px solid var(--border);
+  background: linear-gradient(135deg, #f4fbf8, #ffffff);
 }
 .modal-title {
   font-family: 'Space Grotesk', sans-serif;
