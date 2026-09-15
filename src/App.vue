@@ -749,7 +749,7 @@ function totalPorCobrar() {
   min-height: 100vh;
   color: var(--ink);
   padding: 24px 32px 48px;
-  max-width: 1200px;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
