@@ -96,7 +96,7 @@
             v-for="s in serviciosFiltrados()"
             :key="s.id"
           >
-            <q-card flat class="servicio-card card-large">
+            <q-card flat class="servicio-card card-large" :class="['card-pago-' + s.estadoPago, 'card-estado-' + s.estadoEquipo]">
               <q-card-section class="q-pb-none">
                 <div class="row items-center no-wrap">
                   <div class="col">
@@ -304,10 +304,12 @@
               <div class="col-xs-12 col-sm-6">
                 <q-input
                   outlined dense
+                  readonly
+                  disable
                   class="field-clean"
                   type="time"
                   v-model="form.hora"
-                  label="Hora *"
+                  label="Hora de recepción (automática)"
                   :rules="[val => !!val || 'Requerida']"
                 />
               </div>
@@ -738,6 +740,10 @@ function totalPorCobrar() {
 .app-shell .q-btn {
   font-family: 'Inter', -apple-system, sans-serif;
 }
+
+.app-shell {
+  font-size: clamp(14px, 0.9vw, 16px);
+}
 </style>
 
 <style scoped>
@@ -847,8 +853,12 @@ function totalPorCobrar() {
 
 .btn-advance {
   color: var(--accent);
-  font-weight: 500;
-  font-size: 0.78rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--accent-soft);
 }
 
 .icon-btn {
@@ -943,6 +953,26 @@ function totalPorCobrar() {
   transform: translateY(-3px);
 }
 
+.card-pago-pagado {
+  border-left: 5px solid var(--accent);
+  background: linear-gradient(135deg, #ffffff 0%, #f1fbf7 100%);
+}
+
+.card-pago-pendiente {
+  border-left: 5px solid var(--danger);
+  background: linear-gradient(135deg, #ffffff 0%, #fff6f4 100%);
+}
+
+.card-pago-abono {
+  border-left: 5px solid var(--warn);
+  background: linear-gradient(135deg, #ffffff 0%, #fff9ef 100%);
+}
+
+.card-estado-recibido { border-top: 4px solid var(--ink-faint); }
+.card-estado-en_reparacion { border-top: 4px solid var(--warn); }
+.card-estado-listo { border-top: 4px solid #2f7fb0; }
+.card-estado-entregado { border-top: 4px solid var(--accent); }
+
 .card-large {
   min-height: 360px;
 }
@@ -966,11 +996,11 @@ function totalPorCobrar() {
 }
 .status-dot {
   display: inline-block;
-  width: 10px;
-  height: 10px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--ink-faint);
-  box-shadow: 0 0 0 4px rgba(139, 155, 150, 0.14);
+  box-shadow: 0 0 0 5px rgba(139, 155, 150, 0.14);
 }
 .dot-recibido { background: var(--ink-faint); }
 .dot-en_reparacion { background: var(--warn); }
